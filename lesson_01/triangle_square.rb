@@ -1,8 +1,8 @@
-print "Give me base of triangle:\n"
-base = Integer(gets.chomp)
-print "Give me height of triangle:\n"
-height = Integer(gets.chomp)
+puts 'Give me base of triangle:'
+base = gets.chomp.to_f
+puts 'Give me height of triangle:'
+height = gets.chomp.to_f
 
 square = base * height / 2.0
 
-print "Square of triangle : #{square} \n"
+puts "Square of triangle : #{square}."
