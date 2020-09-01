@@ -9,5 +9,5 @@ end
 
 month_hash = Hash[month_names.map(&:to_sym).zip(month_days)]
 
-month_30_days = month_hash.select {|k,v| v == 30}
-month_30_days.each {|k,v| puts k}
+month_30_days = month_hash.select {|month, days| days == 30}
+month_30_days.each {|month, days| puts month}
