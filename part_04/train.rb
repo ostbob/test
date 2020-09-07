@@ -1,24 +1,20 @@
 class Train
-  attr_reader :carriage_number, :velocity, :type
+  attr_reader :carriage_number, :speed, :type
   attr_accessor :route, :station
 
-  def initialize(id, type, carriage_number, velocity = 0)
+  def initialize(id, type, carriage_number, speed = 0)
     @id = id
     @type = type
     @carriage_number = carriage_number
-    @velocity = velocity
+    @speed = speed
   end
 
   def end_move
-    @velocity = 0
+    @speed = 0
   end
 
   def start_move
-    @velocity = 100
-  end
-
-  def current_speed
-    return @velocity
+    @speed = 100
   end
 
   def set_route(route)
@@ -27,13 +23,13 @@ class Train
   end
 
   def decrease_carriage_number
-    if @velocity == 0 && @carriage_number > 0
+    if @speed == 0 && @carriage_number > 0
       @carriage_number -= 1
     end
   end
 
   def increase_carriage_number
-    if @velocity == 0
+    if @speed == 0
       @carriage_number += 1
     end
   end
@@ -50,21 +46,19 @@ class Train
   end
 
   def current_station
-    return @station
+    @station
   end
 
   def current_index
-    return @route.stations.find_index(@station)
+    @route.stations.find_index(@station)
   end
 
   def previous_station
-    return @route.stations[current_index - 1]
+    @route.stations[current_index - 1]
   end
 
   def next_station
-    return @route.stations[current_index + 1]
+    @route.stations[current_index + 1]
   end
 
 end
-
-
