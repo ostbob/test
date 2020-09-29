@@ -1,9 +1,21 @@
+require_relative './instance_counter'
+
 class Station
+  @@stations = []
+
   attr_reader :name, :trains
+
+  include InstanceCounter
 
   def initialize(name)
     @name = name
     @trains = []
+    @@stations << self
+    register_instance
+  end
+
+  def self.all
+    @@stations
   end
 
   # Это public, потому что могут использоваться как интерфейс к объекту Station

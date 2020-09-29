@@ -1,4 +1,13 @@
+require_relative 'manufacturer'
+require_relative 'instance_counter'
+
 class Train
+
+  @@trains = []
+
+  include Manufacturer
+  include InstanceCounter
+
   attr_reader :id, :speed, :type
   attr_accessor :route, :station, :wagons
 
@@ -7,6 +16,13 @@ class Train
     @type = type
     @speed = speed
     @wagons = []
+    @@trains << self
+    register_instance
+  end
+
+  def self.find(id)
+    @@trains.each {|train| return train if train.id == id }
+    return nil
   end
 
   # Это public, потому что могут напрямую использоваться как интерфейс к объекту 
