@@ -12,6 +12,7 @@ class Station
     @trains = []
     @@stations << self
     register_instance
+    validate!
   end
 
   def self.all
@@ -46,5 +47,17 @@ class Station
 
       return 'Trains ids: ' + trains_ids.join(', ')
     end
+  end
+
+  def valid?
+    validate!
+    true
+  rescue
+    false
+  end
+
+  private
+  def validate!
+    raise "Name can't be nil." if @name.nil?
   end
 end

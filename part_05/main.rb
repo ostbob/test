@@ -44,16 +44,22 @@ class Main
 
   private
   def create_new_train
-    puts 'Creating new train ...'
-    puts 'Input new train id:'
-    id = gets.chomp
-    puts 'Input train speed ...'
-    speed = gets.chomp.to_f
-    puts 'Input type: passenger or cargo ...'
-    type = gets.chomp
-    
-    train = Train.new(id, type.downcase.to_sym, speed)
-    @trains[id.to_sym] = train
+    begin
+      puts 'Creating new train ...'
+      puts 'Input new train id like XXX-XX:'
+      id = gets.chomp
+      puts 'Input train speed ...'
+      speed = gets.chomp.to_f
+      puts 'Input type: passenger or cargo ...'
+      type = gets.chomp
+      
+      train = Train.new(id, type.downcase.to_sym, speed)
+      puts "New train was created: id = #{id}, type = #{type.downcase}, speed = #{speed}"
+      @trains[id.to_sym] = train
+    rescue RuntimeError => e
+      puts e.message
+      retry
+    end
   end
 
   def create_new_station

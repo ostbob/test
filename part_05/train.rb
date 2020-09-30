@@ -11,6 +11,8 @@ class Train
   attr_reader :id, :speed, :type
   attr_accessor :route, :station, :wagons
 
+  ID_FORMAT = /^[\w\d]{3}-?[\w\d]{2}$/i
+
   def initialize(id, type, speed = 0)
     @id = id
     @type = type
@@ -18,6 +20,7 @@ class Train
     @wagons = []
     @@trains << self
     register_instance
+    validate!
   end
 
   def self.find(id)
@@ -67,6 +70,13 @@ class Train
     end
   end
 
+  def valid?
+    validate!
+    true
+  rescue
+    false
+  end
+
   # Это private, потому что они используются только внутри этого класса
   private
   def current_station
@@ -83,6 +93,13 @@ class Train
 
   def next_station
     @route.stations[current_index + 1]
+  end
+
+  def validate!
+    raise "ID can't be nil" if @id.nil?
+    raise "Type can't be nil" if @type.nil?
+    raise "Speed must be greater than zero" if @speed < 0
+    raise "ID has invalid format." if id !~ ID_FORMAT
   end
 
 end
