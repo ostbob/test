@@ -8,8 +8,8 @@ class Route
   def initialize(name, start_station, end_station)
     @name = name
     @stations = [start_station, end_station]
-    register_instance
     validate!
+    register_instance
   end
 
   # Это public, потому что они могут использоваться как интерфейс к объекту

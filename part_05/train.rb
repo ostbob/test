@@ -17,10 +17,10 @@ class Train
     @id = id
     @type = type
     @speed = speed
+    validate!
     @wagons = []
     @@trains << self
     register_instance
-    validate!
   end
 
   def self.find(id)
