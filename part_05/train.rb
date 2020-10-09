@@ -69,6 +69,12 @@ class Train
       @station.get_train(self)
     end
   end
+  
+  def wagons_block_method(&block)
+    @wagons.each_with_index do |wagon, index|
+      yield wagon, index
+    end
+  end
 
   def valid?
     validate!

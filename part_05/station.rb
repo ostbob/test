@@ -49,6 +49,12 @@ class Station
     end
   end
 
+  def trains_block_method(&block)
+    @trains.each do |train|
+      yield train
+    end
+  end
+
   def valid?
     validate!
     true

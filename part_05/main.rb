@@ -34,6 +34,9 @@ class Main
         menu.choice('Add wagon to train', text: 'Add wagon to train') {add_wagon_to_train}
         menu.choice('Delete wagon from train', text: 'Delete wagon') {delete_wagon_from_train}
         menu.choice('Move train', text: 'Move') {move_train}
+        menu.choice('Take seats or volume of train wagon', text: 'Take seats or volume') {take_seats_or_volume}
+        menu.choice('Show train wagons', text: 'Show train wagons') {show_train_wagons}
+        menu.choice('Show stations and trains', text: 'show stations and trains') {show_stations_and_trains}
         menu.choice('Exit', text: 'Exit') {exit = true}
         menu.default = '...'
       end
@@ -153,9 +156,13 @@ class Main
     end
 
     if @trains[id.to_sym].type == :cargo
-      wagon = CargoWagon.new
+      puts 'Input cargo wagon volume:'
+      volume = gets.chomp.to_f
+      wagon = CargoWagon.new(volume)
     else
-      wagon = PassengerWagon.new
+      puts 'Input passenger wagon seat number:'
+      seat_number = gets.chomp.to_i
+      wagon = PassengerWagon.new(seat_number)
     end
     @trains[id.to_sym].add_wagon(wagon)
   end
@@ -189,6 +196,69 @@ class Main
       menu.prompt = 'Choose train option.'
       menu.choice('Move forward', text: 'Move') {@trains[id.to_sym].move_forward}
       menu.choice('Move back', text: 'Move') {@trains[id.to_sym].move_back}
+    end
+  end
+
+  def take_seats_or_volume
+    puts 'Input train id ...'
+    id = gets.chomp
+    if not @trains.key?(id.to_sym)
+      puts 'No such train ...'
+      return
+    end
+
+    train = @trains[id.to_sym]
+
+    puts 'Input wagon id ...'
+    wagon_id = gets.chomp.to_i - 1
+    if train.wagons[wagon_id].nil?
+      puts 'No such wagon id ...'
+      return
+    end
+
+    wagon = train.wagons[wagon_id]
+
+    if wagon.type == :cargo
+      puts 'Input wagon required volume ...'
+      volume = gets.chomp.to_f
+      wagon.occupy_volume(volume)
+    elsif wagon.type == :passenger
+      puts 'Taking wagon seat for passenger ...'
+      wagon.take_seat
+    end
+  end
+
+  def show_train_wagons
+    puts 'Input train id ...'
+    id = gets.chomp
+    if not @trains.key?(id.to_sym)
+      puts 'No such train ...'
+      return
+    end
+
+    print_train_wagons(@trains[id.to_sym])
+  end
+
+  def print_train_wagons(train)
+    puts "Printing information for train #{train.id}..."
+    train.wagons_block_method do |wagon, index|
+      if wagon.type == :cargo
+        puts "wagon id : #{index + 1}, type : #{wagon.type}, free volume: #{wagon.get_free_volume}, occupied volume: #{wagon.occupied_volume}"
+      else 
+        puts "wagon id : #{index + 1}, type : #{wagon.type}, free seats: #{wagon.get_free_seats}, taken seats: #{wagon.get_taken_seats}"
+      end
+    end
+
+  end
+
+  def show_stations_and_trains
+    Station.all.each do |station|
+      puts "Printing data for stations #{station.name}: "
+      station.trains_block_method do |train|
+        puts "Train id: #{train.id}, type: #{train.type}, wagons: #{train.wagons.length}"
+        print_train_wagons(train)
+      end
+      puts "-------------------------------------------"
     end
   end
 
