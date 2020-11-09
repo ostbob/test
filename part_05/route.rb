@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative './instance_counter'
 
 class Route
@@ -12,9 +14,8 @@ class Route
     register_instance
   end
 
-  # Это public, потому что они могут использоваться как интерфейс к объекту
   def add_station(station)
-    @stations.insert(stations.length-1, station)
+    @stations.insert(stations.length - 1, station)
   end
 
   def delete_station(station)
@@ -24,16 +25,15 @@ class Route
   def valid?
     validate!
     true
-  rescue
+  rescue StandardError
     false
   end
 
   private
+
   def validate!
     raise "Name can't be nil." if @name.nil?
     raise "Start station can't be nil" if @stations[0].nil?
     raise "End station can't be nil" if @stations[-1].nil?
   end
-
 end
-

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'highline'
 
 require_relative 'station'
@@ -10,34 +12,32 @@ require_relative 'passenger_train'
 require_relative 'passenger_wagon'
 
 class Main
-
   def initialize
-    @trains = Hash.new
-    @stations = Hash.new
-    @routes = Hash.new
-    @wagons = Hash.new
+    @trains = {}
+    @stations = {}
+    @routes = {}
+    @wagons = {}
   end
 
   def start
     cli = HighLine.new
-    while true
+    loop do
       exit = false
       cli.choose do |menu|
         puts "\n\n\n============================================================================\n\n\n"
         menu.prompt = 'Please choose your option.'
-        menu.choice('Create new station', text: 'Create new station') {create_new_station}
-        menu.choice('Create new train', text: 'Create new train') {create_new_train}
-        menu.choice('Create new route', text: 'Create new route') {create_new_route}
-        menu.choice('Manage existing route', text: 'Manage route') {manage_route}
-        menu.choice('Show stations', text: 'Show stations') {puts @stations.map{|station_name, station| "Station #{station_name} : #{station.get_trains}"}}
-        menu.choice('Assign route to train', text: 'Assign route to train') {assign_route_to_train}
-        menu.choice('Add wagon to train', text: 'Add wagon to train') {add_wagon_to_train}
-        menu.choice('Delete wagon from train', text: 'Delete wagon') {delete_wagon_from_train}
-        menu.choice('Move train', text: 'Move') {move_train}
-        menu.choice('Take seats or volume of train wagon', text: 'Take seats or volume') {take_seats_or_volume}
-        menu.choice('Show train wagons', text: 'Show train wagons') {show_train_wagons}
-        menu.choice('Show stations and trains', text: 'show stations and trains') {show_stations_and_trains}
-        menu.choice('Exit', text: 'Exit') {exit = true}
+        menu.choice('Create new station', text: 'Create new station') { create_new_station }
+        menu.choice('Create new train', text: 'Create new train') { create_new_train }
+        menu.choice('Create new route', text: 'Create new route') { create_new_route }
+        menu.choice('Manage existing route', text: 'Manage route') { manage_route }
+        menu.choice('Assign route to train', text: 'Assign route to train') { assign_route_to_train }
+        menu.choice('Add wagon to train', text: 'Add wagon to train') { add_wagon_to_train }
+        menu.choice('Delete wagon from train', text: 'Delete wagon') { delete_wagon_from_train }
+        menu.choice('Move train', text: 'Move') { move_train }
+        menu.choice('Take seats or volume of train wagon', text: 'Take seats or volume') { take_seats_or_volume }
+        menu.choice('Show train wagons', text: 'Show train wagons') { show_train_wagons }
+        menu.choice('Show stations and trains', text: 'show stations and trains') { show_stations_and_trains }
+        menu.choice('Exit', text: 'Exit') { exit = true }
         menu.default = '...'
       end
 
@@ -46,23 +46,18 @@ class Main
   end
 
   private
+
   def create_new_train
-    begin
-      puts 'Creating new train ...'
-      puts 'Input new train id like XXX-XX:'
-      id = gets.chomp
-      puts 'Input train speed ...'
-      speed = gets.chomp.to_f
-      puts 'Input type: passenger or cargo ...'
-      type = gets.chomp
-      
-      train = Train.new(id, type.downcase.to_sym, speed)
-      puts "New train was created: id = #{id}, type = #{type.downcase}, speed = #{speed}"
-      @trains[id.to_sym] = train
-    rescue RuntimeError => e
-      puts e.message
-      retry
-    end
+    puts 'Creating new train. Input new train id like XXX-XX:'
+    id = gets.chomp
+    puts 'Creating new train. Input train speed ...'
+    speed = gets.chomp.to_f
+    puts 'Creating new train. Input type: passenger or cargo ...'
+    type = gets.chomp.downcase.to_sym
+    @trains[id.to_sym] = Train.new(id, type, speed)
+  rescue RuntimeError => e
+    puts e.message
+    retry
   end
 
   def create_new_station
@@ -74,31 +69,35 @@ class Main
     @stations[name.to_sym] = station
   end
 
-  def create_new_route
-    puts 'Create new route ...'
-    puts 'Input new route name ...'
-    name = gets.chomp
-    puts 'Input start station ...'
-    start_station = gets.chomp
-    if not @stations.key?(start_station.to_sym)
-      puts 'No such station in dictionary ...'
-      return
-    end
-    puts 'Input end station ...'
-    end_station = gets.chomp
-    if not @stations.key?(end_station.to_sym)
-      puts 'No such station in dictionary ...'
-      return
+  def find_station_by_name
+    name = gets.chomp.to_sym
+    unless @stations.key?(name)
+      puts 'No such station in dictionary ... Exit.'
+      return nil
     end
 
-    route = Route.new(name, @stations[start_station.to_sym], @stations[end_station.to_sym])
+    @stations[name]
+  end
+
+  def create_new_route
+    puts 'Creating new route: input new route name ...'
+    name = gets.chomp
+    puts 'Creating new route: input start station ...'
+    start_station = find_station_by_name
+    return if start_station.nil?
+
+    puts 'Creating new route: input end station ...'
+    end_station = find_station_by_name
+    return if end_station.nil?
+
+    route = Route.new(name, start_station, end_station)
     @routes[name.to_sym] = route
   end
 
   def add_station_to_route(route_name)
     puts 'Input station name ...'
     name = gets.chomp
-    if not @stations.key?(name.to_sym)
+    unless @stations.key?(name.to_sym)
       puts 'No such station ...'
       return
     end
@@ -108,106 +107,112 @@ class Main
   def delete_station_from_route(route_name)
     puts 'Input station name ...'
     name = gets.chomp
-    if not @stations.key?(name.to_sym)
+    unless @stations.key?(name.to_sym)
       puts 'No such station'
       return
     end
     @routes[route_name].delete_station(@stations[name.to_sym])
   end
 
-  def manage_route
+  def find_route_by_name
     puts 'Input route name ...'
     name = gets.chomp
-    if not @routes.key?(name.to_sym)
+    unless @routes.key?(name.to_sym)
       puts 'No such route ...'
-      return
+      return nil
     end
+
+    @routes[name.to_sym]
+  end
+
+  def manage_route
+    route = find_route_by_name
+    return if route.nil?
+
     route_cli = HighLine.new
     route_cli.choose do |menu|
       menu.prompt = 'Choose route option.'
-      menu.choice('Add station', text: 'add station') {add_station_to_route(name.to_sym)}
-      menu.choice('Delete station', text: 'delete station') {delete_station_from_route(name.to_sym)}
-      menu.choice('Show stations', text: 'show stations') {show_stations(@routes[name.to_sym].stations)}
+      menu.choice('Add station', text: 'add station') { add_station_to_route(route.name) }
+      menu.choice('Delete station', text: 'delete station') { delete_station_from_route(route.name) }
+      menu.choice('Show stations', text: 'show stations') { show_stations(route.stations) }
     end
   end
 
   def assign_route_to_train
     puts 'Input route name ...'
     name = gets.chomp
-    if not @routes.key?(name.to_sym)
+    unless @routes.key?(name.to_sym)
       puts 'No such route ...'
       return
     end
-    puts 'Input train id ...'
-    id = gets.chomp
-    if not @trains.key?(id.to_sym)
-      puts 'No such train ...'
-      return
-    end
-    @trains[id.to_sym].set_route(@routes[name.to_sym])
+
+    train = find_train_by_id
+    return if train.nil?
+
+    train.route = @routes[name.to_sym]
   end
 
   def add_wagon_to_train
-    puts 'Input train id ...'
-    id = gets.chomp
-    if not @trains.key?(id.to_sym)
-      puts 'No such train ...'
-      return
-    end
+    train = find_train_by_id
+    return if train.nil?
 
-    if @trains[id.to_sym].type == :cargo
-      puts 'Input cargo wagon volume:'
-      volume = gets.chomp.to_f
-      wagon = CargoWagon.new(volume)
-    else
-      puts 'Input passenger wagon seat number:'
-      seat_number = gets.chomp.to_i
-      wagon = PassengerWagon.new(seat_number)
-    end
-    @trains[id.to_sym].add_wagon(wagon)
+    puts 'Input wagon volume or seat number ...'
+    volume_or_seat_number = gets.chomp
+    wagon = if train.type == :cargo
+              CargoWagon.new(volume_or_seat_number.to_f)
+            else
+              PassengerWagon.new(volume_or_seat_number.to_i)
+            end
+    train.add_wagon(wagon)
   end
 
   def delete_wagon_from_train
     puts 'Input train id ...'
     id = gets.chomp
-    if not @trains.key?(id.to_sym)
+    unless @trains.key?(id.to_sym)
       puts 'No such train ...'
       return
     end
 
-    @trains[id.to_sym].delete_wagon()
+    @trains[id.to_sym].delete_wagon
   end
 
   def move_train
-    puts 'Input train id ...'
-    id = gets.chomp
-    if not @trains.key?(id.to_sym)
-      puts 'No such train ...'
-      return
-    end
+    train = find_train_by_id
+    return if train.nil?
 
-    if  @trains[id.to_sym].route.nil?
+    if train.route.nil?
       puts 'No route for this train'
       return
     end
 
+    move_train_forward_or_back(train)
+  end
+
+  def move_train_forward_or_back(train)
     train_cli = HighLine.new
     train_cli.choose do |menu|
       menu.prompt = 'Choose train option.'
-      menu.choice('Move forward', text: 'Move') {@trains[id.to_sym].move_forward}
-      menu.choice('Move back', text: 'Move') {@trains[id.to_sym].move_back}
+      menu.choice('Move forward', text: 'Move') { train.move_forward }
+      menu.choice('Move back', text: 'Move') { train.move_back }
     end
   end
 
-  def take_seats_or_volume
+  def find_train_by_id
     puts 'Input train id ...'
     id = gets.chomp
-    if not @trains.key?(id.to_sym)
-      puts 'No such train ...'
-      return
+
+    unless @trains.key?(id.to_sym)
+      puts 'No such train id ...'
+      return nil
     end
 
-    train = @trains[id.to_sym]
+    @trains[id.to_sym]
+  end
+
+  def take_seats_or_volume
+    train = find_train_by_id
+    return if train.nil?
 
     puts 'Input wagon id ...'
     wagon_id = gets.chomp.to_i - 1
@@ -216,8 +221,10 @@ class Main
       return
     end
 
-    wagon = train.wagons[wagon_id]
+    occupy_wagon(train.wagons[wagon_id])
+  end
 
+  def occupy_wagon(wagon)
     if wagon.type == :cargo
       puts 'Input wagon required volume ...'
       volume = gets.chomp.to_f
@@ -231,7 +238,7 @@ class Main
   def show_train_wagons
     puts 'Input train id ...'
     id = gets.chomp
-    if not @trains.key?(id.to_sym)
+    unless @trains.key?(id.to_sym)
       puts 'No such train ...'
       return
     end
@@ -242,13 +249,13 @@ class Main
   def print_train_wagons(train)
     puts "Printing information for train #{train.id}..."
     train.wagons_block_method do |wagon, index|
+      puts "wagon id: #{index + 1}, type: #{wagon.type}"
       if wagon.type == :cargo
-        puts "wagon id : #{index + 1}, type : #{wagon.type}, free volume: #{wagon.get_free_volume}, occupied volume: #{wagon.occupied_volume}"
-      else 
-        puts "wagon id : #{index + 1}, type : #{wagon.type}, free seats: #{wagon.get_free_seats}, taken seats: #{wagon.get_taken_seats}"
+        puts "   free volume: #{wagon.free_volume}, occupied volume: #{wagon.occupied_volume}"
+      else
+        puts "   free seats: #{wagon.free_seats}, taken seats: #{wagon.taken_seats}"
       end
     end
-
   end
 
   def show_stations_and_trains
@@ -258,19 +265,17 @@ class Main
         puts "Train id: #{train.id}, type: #{train.type}, wagons: #{train.wagons.length}"
         print_train_wagons(train)
       end
-      puts "-------------------------------------------"
+      puts '-------------------------------------------'
     end
   end
 
   def show_stations(stations)
     puts stations.inspect
-    #puts stations.map{|station_name, station| "#{station_name} : #{station.get_trains}"}
   end
 
   def show_trains
     puts @trains.to_s
   end
-
 end
 
 Main.new.start

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CargoWagon < Wagon
   attr_reader :volume, :occupied_volume
 
@@ -11,8 +13,7 @@ class CargoWagon < Wagon
     @occupied_volume += required_volume if @volume >= @occupied_volume + required_volume
   end
 
-  def get_free_volume
+  def free_volume
     @volume - @occupied_volume
   end
-
 end
