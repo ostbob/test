@@ -11,6 +11,7 @@ require_relative 'cargo_wagon'
 require_relative 'passenger_train'
 require_relative 'passenger_wagon'
 
+# rubocop:disable Metrics/ClassLength
 class Main
   def initialize
     @trains = {}
@@ -19,6 +20,7 @@ class Main
     @wagons = {}
   end
 
+  # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
   def start
     cli = HighLine.new
     loop do
@@ -44,9 +46,11 @@ class Main
       break if exit
     end
   end
+  # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
   private
 
+  # rubocop:disable Metrics/AbcSize
   def create_new_train
     puts 'Creating new train. Input new train id like XXX-XX:'
     id = gets.chomp
@@ -59,6 +63,7 @@ class Main
     puts e.message
     retry
   end
+  # rubocop:enable Metrics/AbcSize
 
   def create_new_station
     puts 'Create new station ...'
@@ -277,5 +282,6 @@ class Main
     puts @trains.to_s
   end
 end
+# rubocop:enable Metrics/ClassLength
 
 Main.new.start
