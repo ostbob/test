@@ -2,6 +2,7 @@
 
 require_relative 'manufacturer'
 require_relative 'instance_counter'
+require_relative 'accessor'
 
 class Train
   @trains = []
@@ -12,9 +13,12 @@ class Train
 
   include Manufacturer
   include InstanceCounter
+  include Accessors
 
-  attr_reader :id, :speed, :type, :route
-  attr_accessor :station, :wagons
+  attr_reader :id, :type, :route
+  strong_attr_accessor :station, Station
+  attr_accessor_with_history :speed
+  attr_accessor :wagons
 
   ID_FORMAT = /^[\w\d]{3}-?[\w\d]{2}$/i.freeze
 
