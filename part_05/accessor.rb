@@ -14,14 +14,14 @@ module Accessors
         end
 
         define_method "#{name}=" do |new_value|
-          history = instance_variable_get("@#{name}_history")
+          history = instance_variable_get("@#{name}_history") || []
           history << new_value
           instance_variable_set("@#{name}_history", history)
           instance_variable_set("@#{name}", new_value)
         end
 
         define_method "#{name}_history" do
-          instance_variable_get("@#{name}_history") || [nil]
+          instance_variable_get("@#{name}_history") || []
         end
       end
     end

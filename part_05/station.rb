@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative './instance_counter'
+require_relative 'validation'
 
 class Station
   @stations = []
@@ -12,6 +13,9 @@ class Station
   attr_reader :name, :trains
 
   include InstanceCounter
+  include Validation
+
+  validate :name, :presence
 
   def initialize(name)
     @name = name
@@ -45,18 +49,5 @@ class Station
     @trains.each do |train|
       yield train
     end
-  end
-
-  def valid?
-    validate!
-    true
-  rescue StandardError
-    false
-  end
-
-  private
-
-  def validate!
-    raise "Name can't be nil." if @name.nil?
   end
 end

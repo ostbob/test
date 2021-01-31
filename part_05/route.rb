@@ -9,6 +9,9 @@ class Route
   include InstanceCounter
   include Validation
 
+  validate :name, :presence
+  validate :name, :type, String
+
   def initialize(name, start_station, end_station)
     @name = name
     @stations = [start_station, end_station]
@@ -22,20 +25,5 @@ class Route
 
   def delete_station(station)
     @stations.delete(station)
-  end
-
-  def valid?
-    validate!
-    true
-  rescue StandardError
-    false
-  end
-
-  private
-
-  def validate!
-    raise "Name can't be nil." if @name.nil?
-    raise "Start station can't be nil" if @stations[0].nil?
-    raise "End station can't be nil" if @stations[-1].nil?
   end
 end

@@ -3,6 +3,7 @@
 require_relative 'manufacturer'
 require_relative 'instance_counter'
 require_relative 'accessor'
+require_relative 'validation'
 
 class Train
   @trains = []
@@ -14,18 +15,21 @@ class Train
   include Manufacturer
   include InstanceCounter
   include Accessors
+  include Validation
 
   attr_reader :id, :type, :route
   strong_attr_accessor :station, Station
   attr_accessor_with_history :speed
   attr_accessor :wagons
 
-  ID_FORMAT = /^[\w\d]{3}-?[\w\d]{2}$/i.freeze
+  validate :id, :format, /^[\w\d]{3}-?[\w\d]{2}$/i.freeze
+  validate :id, :presence
+  validate :type, :presence
 
   def initialize(id, type, speed = 0)
     @id = id
     @type = type
-    @speed = speed
+    self.speed = speed
     validate!
     @wagons = []
     Train.trains << self
@@ -81,13 +85,6 @@ class Train
     end
   end
 
-  def valid?
-    validate!
-    true
-  rescue StandardError
-    false
-  end
-
   private
 
   def current_station
@@ -104,12 +101,5 @@ class Train
 
   def next_station
     @route.stations[current_index + 1]
-  end
-
-  def validate!
-    raise "ID can't be nil" if @id.nil?
-    raise "Type can't be nil" if @type.nil?
-    raise 'Speed must be greater than zero' if @speed.negative?
-    raise 'ID has invalid format.' if id !~ ID_FORMAT
   end
 end
